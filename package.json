@@ -1,0 +1,43 @@
+{
+  "name": "ccradar",
+  "version": "1.0.0",
+  "description": "GitHub Issue監視とClaude Code自動実行ツール",
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm -r --parallel run dev",
+    "build": "pnpm -r run build",
+    "test": "pnpm -r run test",
+    "test:watch": "pnpm -r run test:watch",
+    "test:coverage": "pnpm -r run test:coverage",
+    "test:coverage:watch": "pnpm -r run test:coverage:watch",
+    "test:integration": "vitest tests/integration",
+    "test:integration:watch": "vitest tests/integration --watch",
+    "test:all": "pnpm test && pnpm test:integration",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "typecheck": "pnpm -r run typecheck",
+    "similarity": "similarity-ts . --exclude node_modules --exclude dist --exclude coverage",
+    "similarity:strict": "similarity-ts . --threshold 0.9 --exclude node_modules --exclude dist --exclude coverage"
+  },
+  "keywords": [
+    "github",
+    "cli",
+    "tui",
+    "automation",
+    "claude"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.1.1",
+    "@types/node": "^24.0.12",
+    "@vitest/coverage-v8": "^3.2.4",
+    "lefthook": "^1.12.1",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  }
+}

@@ -1,0 +1,59 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production
+dist/
+build/
+
+# Testing
+coverage/
+*.lcov
+.nyc_output
+
+# Cache
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+.turbo/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# TypeScript
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Misc
+.eslintcache
+.stylelintcache
+*.pid
+*.seed
+*.pid.lock
+
+# ccradar specific
+.ccradar/

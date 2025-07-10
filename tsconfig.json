@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "rootDir": ".",
+    "composite": false,
+    "incremental": true,
+    "baseUrl": ".",
+    "paths": {
+      "@ccradar/core": ["packages/core/src"],
+      "@ccradar/core/*": ["packages/core/src/*"]
+    }
+  },
+  "include": [],
+  "exclude": ["node_modules", "dist", "coverage", "**/*.test.ts", "**/*.test.tsx"]
+}

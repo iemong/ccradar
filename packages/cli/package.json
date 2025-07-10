@@ -1,0 +1,32 @@
+{
+  "name": "@ccradar/cli",
+  "version": "1.0.0",
+  "description": "CLI for ccradar",
+  "type": "module",
+  "bin": {
+    "ccradar": "./bin/ccradar.js"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "dev": "tsc -b --watch",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage",
+    "test:coverage:watch": "vitest --coverage --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ccradar/core": "workspace:*",
+    "ink": "^5.2.0",
+    "ink-spinner": "^5.0.0",
+    "react": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.12",
+    "@types/react": "^18.3.19",
+    "@vitest/coverage-v8": "^3.2.4",
+    "ink-testing-library": "^4.0.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  }
+}
