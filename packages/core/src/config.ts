@@ -28,6 +28,8 @@ export function loadConfig(): Config {
   const cacheDir = process.env.CCRADAR_CACHE_DIR || join(homedir(), '.ccradar')
   const claudePath = process.env.CLAUDE_PATH
   const workDir = process.env.CCRADAR_WORK_DIR
+  const useSandbox = process.env.CCRADAR_USE_SANDBOX === 'true'
+  const sandboxConfigPath = process.env.CCRADAR_SANDBOX_CONFIG
 
   return {
     githubToken,
@@ -36,5 +38,7 @@ export function loadConfig(): Config {
     cacheDir,
     claudePath,
     workDir,
+    useSandbox,
+    sandboxConfigPath,
   }
 }

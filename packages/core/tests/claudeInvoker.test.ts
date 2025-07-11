@@ -138,7 +138,7 @@ describe('ClaudeInvoker', () => {
         '/Users/iemong/.claude/local/claude',
         ['-p', expect.stringContaining('GitHub Issue実装タスク')],
         {
-          cwd: undefined,
+          cwd: process.cwd(),
           stdio: ['inherit', 'pipe', 'pipe'],
         },
       )
@@ -296,6 +296,143 @@ describe('ClaudeInvoker', () => {
       expect(promptCall).toContain('URL: https://github.com/owner/repo/issues/123')
       expect(promptCall).toContain('ラベル: bug, implement')
       expect(promptCall).toContain('このIssueの内容を確認し、必要な実装を行ってください。')
+    })
+  })
+
+  describe('sandbox functionality', () => {
+    it('should use sandbox-exec when useSandbox is true', async () => {
+      invoker = new ClaudeInvoker({ useSandbox: true })
+
+      const mockSubprocess = {
+        stdout: { pipe: vi.fn(), on: vi.fn() },
+        stderr: { pipe: vi.fn(), on: vi.fn() },
+      }
+      mockExeca.mockResolvedValue(mockSubprocess)
+
+      await invoker.invoke(mockIssue, { cwd: '/test/project' })
+
+      expect(mockExeca).toHaveBeenCalledWith(
+        'sandbox-exec',
+        [
+          '-f', '/test/project/claude-ccradar.sb',
+          '-D', 'WORK_DIR=/test/project',
+          '-D', `HOME_DIR=${process.env.HOME}`,
+          '/Users/iemong/.claude/local/claude',
+          '-p', expect.any(String)
+        ],
+        expect.any(Object),
+      )
+
+      expect(consoleSpy.log).toHaveBeenCalledWith(
+        expect.stringContaining('🔒 Sandbox mode: ENABLED'),
+      )
+    })
+
+    it('should use regular claude when useSandbox is false', async () => {
+      invoker = new ClaudeInvoker({ useSandbox: false })
+
+      const mockSubprocess = {
+        stdout: { pipe: vi.fn(), on: vi.fn() },
+        stderr: { pipe: vi.fn(), on: vi.fn() },
+      }
+      mockExeca.mockResolvedValue(mockSubprocess)
+
+      await invoker.invoke(mockIssue)
+
+      expect(mockExeca).toHaveBeenCalledWith(
+        '/Users/iemong/.claude/local/claude',
+        ['-p', expect.any(String)],
+        expect.any(Object),
+      )
+
+      expect(consoleSpy.log).toHaveBeenCalledWith(
+        expect.stringContaining('⚠️  Sandbox mode: DISABLED'),
+      )
+    })
+
+    it('should use custom sandbox config path', async () => {
+      invoker = new ClaudeInvoker({ 
+        useSandbox: true,
+        sandboxConfigPath: '/custom/sandbox.sb'
+      })
+
+      const mockSubprocess = {
+        stdout: { pipe: vi.fn(), on: vi.fn() },
+        stderr: { pipe: vi.fn(), on: vi.fn() },
+      }
+      mockExeca.mockResolvedValue(mockSubprocess)
+
+      await invoker.invoke(mockIssue, { cwd: '/test/project' })
+
+      expect(mockExeca).toHaveBeenCalledWith(
+        'sandbox-exec',
+        expect.arrayContaining([
+          '-f', '/custom/sandbox.sb',
+        ]),
+        expect.any(Object),
+      )
+
+      expect(consoleSpy.log).toHaveBeenCalledWith(
+        expect.stringContaining('📋 Sandbox config: /custom/sandbox.sb'),
+      )
+    })
+
+    it('should prefer options.useSandbox over config.useSandbox', async () => {
+      invoker = new ClaudeInvoker({ useSandbox: false })
+
+      const mockSubprocess = {
+        stdout: { pipe: vi.fn(), on: vi.fn() },
+        stderr: { pipe: vi.fn(), on: vi.fn() },
+      }
+      mockExeca.mockResolvedValue(mockSubprocess)
+
+      await invoker.invoke(mockIssue, { 
+        useSandbox: true, 
+        cwd: '/test/project' 
+      })
+
+      expect(mockExeca).toHaveBeenCalledWith(
+        'sandbox-exec',
+        expect.arrayContaining([
+          '-f', '/test/project/claude-ccradar.sb',
+        ]),
+        expect.any(Object),
+      )
+
+      expect(consoleSpy.log).toHaveBeenCalledWith(
+        expect.stringContaining('🔒 Sandbox mode: ENABLED'),
+      )
+    })
+
+    it('should prefer options.sandboxConfigPath over config.sandboxConfigPath', async () => {
+      invoker = new ClaudeInvoker({ 
+        useSandbox: true,
+        sandboxConfigPath: '/config/sandbox.sb'
+      })
+
+      const mockSubprocess = {
+        stdout: { pipe: vi.fn(), on: vi.fn() },
+        stderr: { pipe: vi.fn(), on: vi.fn() },
+      }
+      mockExeca.mockResolvedValue(mockSubprocess)
+
+      await invoker.invoke(mockIssue, { 
+        useSandbox: true,
+        sandboxConfigPath: '/options/sandbox.sb',
+        cwd: '/test/project'
+      })
+
+      expect(mockExeca).toHaveBeenCalledWith(
+        'sandbox-exec',
+        expect.arrayContaining([
+          '-f', '/options/sandbox.sb',
+        ]),
+        expect.any(Object),
+      )
+
+      expect(consoleSpy.log).toHaveBeenCalledWith(
+        expect.stringContaining('📋 Sandbox config: /options/sandbox.sb'),
+      )
     })
   })
 })

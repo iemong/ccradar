@@ -1,0 +1,50 @@
+(version 1)
+(deny default)
+
+; 基本的な読み取り権限
+(allow file-read* 
+    (literal "/")
+    (regex "^/usr/")
+    (regex "^/System/")
+    (regex "^/Library/")
+    (regex "^/private/var/")
+    (regex "^/dev/")
+    (regex "^/Applications/")
+    (regex "^/opt/")
+    (literal "/etc")
+    (subpath "/etc")
+    (subpath (param "HOME_DIR"))
+)
+
+; 書き込み権限（プロジェクトディレクトリとClaude設定のみ）
+(deny file-write*)
+(allow file-write*
+    (subpath (param "TARGET_DIR"))
+    (regex (string-append "^" (param "HOME_DIR") "/.claude"))
+    (literal "/dev/null")
+    (literal "/dev/zero")
+    (literal "/dev/random")
+    (literal "/dev/urandom")
+    (literal "/dev/tty")
+    (regex "^/private/var/folders/.*/T/")
+    (regex "^/var/folders/.*/T/")
+)
+
+; プロセス実行権限
+(allow process-exec* (literal "/usr/bin/env"))
+(allow process-exec* (regex "^/usr/bin/"))
+(allow process-exec* (regex "^/bin/"))
+(allow process-exec* (regex "^/usr/local/bin/"))
+(allow process-exec* (regex "^/opt/homebrew/"))
+(allow process-exec* (subpath (param "HOME_DIR")))
+
+; ネットワーク権限
+(allow network*)
+
+; その他の必要な権限
+(allow signal)
+(allow sysctl-read)
+(allow system-socket)
+(allow mach-lookup)
+(allow iokit-open)
+(allow file-ioctl)

@@ -1,6 +1,6 @@
 import { readdir, stat } from 'node:fs/promises'
 import { join } from 'node:path'
-import { ClaudeInvoker, type Issue, IssueWatcher, Logger } from '@ccradar/core'
+import { ClaudeInvoker, type Issue, IssueWatcher, Logger, loadConfig } from '@ccradar/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock dotenv to prevent .env file from being loaded
@@ -31,6 +31,8 @@ describe('ccradar Integration Tests', () => {
     delete process.env.TRIGGER_LABEL
     delete process.env.CLAUDE_PATH
     delete process.env.CCRADAR_CACHE_DIR
+    delete process.env.CCRADAR_USE_SANDBOX
+    delete process.env.CCRADAR_SANDBOX_CONFIG
   })
 
   describe('Configuration Loading', () => {
@@ -64,6 +66,30 @@ describe('ccradar Integration Tests', () => {
       expect(config.triggerLabel).toBe('implement')
       expect(config.claudePath).toBeUndefined()
       expect(config.cacheDir).toBe(join(process.env.HOME || process.cwd(), '.ccradar'))
+      expect(config.useSandbox).toBe(false)
+      expect(config.sandboxConfigPath).toBeUndefined()
+    })
+
+    it('should load sandbox configuration from environment variables', () => {
+      process.env.GITHUB_TOKEN = 'test-token'
+      process.env.GITHUB_REPOS = 'owner/repo'
+      process.env.CCRADAR_USE_SANDBOX = 'true'
+      process.env.CCRADAR_SANDBOX_CONFIG = '/custom/sandbox.sb'
+
+      const config = loadConfig()
+
+      expect(config.useSandbox).toBe(true)
+      expect(config.sandboxConfigPath).toBe('/custom/sandbox.sb')
+    })
+
+    it('should handle sandbox configuration with false value', () => {
+      process.env.GITHUB_TOKEN = 'test-token'
+      process.env.GITHUB_REPOS = 'owner/repo'
+      process.env.CCRADAR_USE_SANDBOX = 'false'
+
+      const config = loadConfig()
+
+      expect(config.useSandbox).toBe(false)
     })
   })
 
@@ -165,7 +191,12 @@ describe('ccradar Integration Tests', () => {
 
       const config = loadConfig()
       const watcher = new IssueWatcher(config)
-      const invoker = new ClaudeInvoker({ claudePath: config.claudePath, workDir: config.workDir })
+      const invoker = new ClaudeInvoker({ 
+        claudePath: config.claudePath, 
+        workDir: config.workDir,
+        useSandbox: config.useSandbox,
+        sandboxConfigPath: config.sandboxConfigPath
+      })
       const logger = new Logger(join(config.cacheDir, 'logs'))
 
       // Log workflow start

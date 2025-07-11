@@ -5,6 +5,8 @@ export interface Config {
   cacheDir: string
   claudePath?: string
   workDir?: string
+  useSandbox?: boolean
+  sandboxConfigPath?: string
 }
 
 export interface IssueEvent {
