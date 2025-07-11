@@ -27,6 +27,7 @@ export function loadConfig(): Config {
   const triggerLabel = process.env.TRIGGER_LABEL || 'implement'
   const cacheDir = process.env.CCRADAR_CACHE_DIR || join(homedir(), '.ccradar')
   const claudePath = process.env.CLAUDE_PATH
+  const workDir = process.env.CCRADAR_WORK_DIR
 
   return {
     githubToken,
@@ -34,5 +35,6 @@ export function loadConfig(): Config {
     triggerLabel,
     cacheDir,
     claudePath,
+    workDir,
   }
 }

@@ -8,9 +8,9 @@ export interface ClaudeInvokeOptions {
 }
 
 export class ClaudeInvoker {
-  private config?: { claudePath?: string }
+  private config?: { claudePath?: string; workDir?: string }
 
-  constructor(config?: { claudePath?: string }) {
+  constructor(config?: { claudePath?: string; workDir?: string }) {
     this.config = config
   }
 
@@ -31,7 +31,7 @@ export class ClaudeInvoker {
     const claudeCommand = this.getClaudeCommand()
 
     const execaOptions: ExecaOptions = {
-      cwd: options?.cwd,
+      cwd: options?.cwd || this.config?.workDir,
       stdio: ['inherit', 'pipe', 'pipe'],
     }
 
@@ -39,6 +39,9 @@ export class ClaudeInvoker {
     console.log(`📝 Repository: ${issue.repo}`)
     console.log(`🏷️  Labels: ${issue.labels.join(', ')}`)
     console.log(`🤖 Command: ${claudeCommand}`)
+    if (execaOptions.cwd) {
+      console.log(`📂 Working directory: ${execaOptions.cwd}`)
+    }
     console.log('-'.repeat(80))
 
     try {

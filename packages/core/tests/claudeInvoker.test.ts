@@ -222,6 +222,58 @@ describe('ClaudeInvoker', () => {
         expect.stringContaining('✅ Claude execution completed successfully'),
       )
     })
+
+    it('should use working directory from config', async () => {
+      const workDir = '/custom/work/dir'
+      invoker = new ClaudeInvoker({ workDir })
+
+      const mockSubprocess = {
+        stdout: { pipe: vi.fn(), on: vi.fn() },
+        stderr: { pipe: vi.fn(), on: vi.fn() },
+      }
+      mockExeca.mockResolvedValue(mockSubprocess)
+
+      await invoker.invoke(mockIssue)
+
+      expect(mockExeca).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(Array),
+        expect.objectContaining({
+          cwd: workDir,
+          stdio: ['inherit', 'pipe', 'pipe'],
+        }),
+      )
+
+      expect(consoleSpy.log).toHaveBeenCalledWith(
+        expect.stringContaining(`📂 Working directory: ${workDir}`),
+      )
+    })
+
+    it('should prefer options.cwd over config.workDir', async () => {
+      const configWorkDir = '/config/work/dir'
+      const optionsWorkDir = '/options/work/dir'
+      invoker = new ClaudeInvoker({ workDir: configWorkDir })
+
+      const mockSubprocess = {
+        stdout: { pipe: vi.fn(), on: vi.fn() },
+        stderr: { pipe: vi.fn(), on: vi.fn() },
+      }
+      mockExeca.mockResolvedValue(mockSubprocess)
+
+      await invoker.invoke(mockIssue, { cwd: optionsWorkDir })
+
+      expect(mockExeca).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(Array),
+        expect.objectContaining({
+          cwd: optionsWorkDir,
+        }),
+      )
+
+      expect(consoleSpy.log).toHaveBeenCalledWith(
+        expect.stringContaining(`📂 Working directory: ${optionsWorkDir}`),
+      )
+    })
   })
 
   describe('buildPrompt', () => {

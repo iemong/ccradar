@@ -52,6 +52,7 @@ npm link
    GITHUB_TOKEN=your_github_token_here
    GITHUB_REPOS=owner/repo1,owner/repo2
    TRIGGER_LABEL=implement
+   CCRADAR_WORK_DIR=/path/to/work/directory  # Claude実行時の作業ディレクトリ（オプション）
    ```
 
 ## 使用方法

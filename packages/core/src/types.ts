@@ -4,6 +4,7 @@ export interface Config {
   triggerLabel: string
   cacheDir: string
   claudePath?: string
+  workDir?: string
 }
 
 export interface IssueEvent {

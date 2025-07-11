@@ -34,7 +34,7 @@ export const App: React.FC = () => {
       const issueWatcher = new IssueWatcher(cfg)
       setWatcher(issueWatcher)
 
-      const claudeInvoker = new ClaudeInvoker({ claudePath: cfg.claudePath })
+      const claudeInvoker = new ClaudeInvoker({ claudePath: cfg.claudePath, workDir: cfg.workDir })
       setInvoker(claudeInvoker)
 
       const logger = new Logger(join(cfg.cacheDir, 'logs'))
@@ -92,7 +92,7 @@ export const App: React.FC = () => {
     }
   }, [watcher, checkIssues])
 
-  useInput(async (input: string, key: any) => {
+  useInput(async (input: string, key) => {
     if (input === 'q') {
       await logger?.info('Application exit requested')
       exit()

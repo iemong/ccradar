@@ -165,7 +165,7 @@ describe('ccradar Integration Tests', () => {
 
       const config = loadConfig()
       const watcher = new IssueWatcher(config)
-      const invoker = new ClaudeInvoker({ claudePath: config.claudePath })
+      const invoker = new ClaudeInvoker({ claudePath: config.claudePath, workDir: config.workDir })
       const logger = new Logger(join(config.cacheDir, 'logs'))
 
       // Log workflow start
