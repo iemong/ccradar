@@ -314,11 +314,15 @@ describe('ClaudeInvoker', () => {
       expect(mockExeca).toHaveBeenCalledWith(
         'sandbox-exec',
         [
-          '-f', '/test/project/claude-ccradar.sb',
-          '-D', 'WORK_DIR=/test/project',
-          '-D', `HOME_DIR=${process.env.HOME}`,
+          '-f',
+          '/test/project/claude-ccradar.sb',
+          '-D',
+          'WORK_DIR=/test/project',
+          '-D',
+          `HOME_DIR=${process.env.HOME}`,
           '/Users/iemong/.claude/local/claude',
-          '-p', expect.any(String)
+          '-p',
+          expect.any(String),
         ],
         expect.any(Object),
       )
@@ -351,9 +355,9 @@ describe('ClaudeInvoker', () => {
     })
 
     it('should use custom sandbox config path', async () => {
-      invoker = new ClaudeInvoker({ 
+      invoker = new ClaudeInvoker({
         useSandbox: true,
-        sandboxConfigPath: '/custom/sandbox.sb'
+        sandboxConfigPath: '/custom/sandbox.sb',
       })
 
       const mockSubprocess = {
@@ -366,9 +370,7 @@ describe('ClaudeInvoker', () => {
 
       expect(mockExeca).toHaveBeenCalledWith(
         'sandbox-exec',
-        expect.arrayContaining([
-          '-f', '/custom/sandbox.sb',
-        ]),
+        expect.arrayContaining(['-f', '/custom/sandbox.sb']),
         expect.any(Object),
       )
 
@@ -386,16 +388,14 @@ describe('ClaudeInvoker', () => {
       }
       mockExeca.mockResolvedValue(mockSubprocess)
 
-      await invoker.invoke(mockIssue, { 
-        useSandbox: true, 
-        cwd: '/test/project' 
+      await invoker.invoke(mockIssue, {
+        useSandbox: true,
+        cwd: '/test/project',
       })
 
       expect(mockExeca).toHaveBeenCalledWith(
         'sandbox-exec',
-        expect.arrayContaining([
-          '-f', '/test/project/claude-ccradar.sb',
-        ]),
+        expect.arrayContaining(['-f', '/test/project/claude-ccradar.sb']),
         expect.any(Object),
       )
 
@@ -405,9 +405,9 @@ describe('ClaudeInvoker', () => {
     })
 
     it('should prefer options.sandboxConfigPath over config.sandboxConfigPath', async () => {
-      invoker = new ClaudeInvoker({ 
+      invoker = new ClaudeInvoker({
         useSandbox: true,
-        sandboxConfigPath: '/config/sandbox.sb'
+        sandboxConfigPath: '/config/sandbox.sb',
       })
 
       const mockSubprocess = {
@@ -416,17 +416,15 @@ describe('ClaudeInvoker', () => {
       }
       mockExeca.mockResolvedValue(mockSubprocess)
 
-      await invoker.invoke(mockIssue, { 
+      await invoker.invoke(mockIssue, {
         useSandbox: true,
         sandboxConfigPath: '/options/sandbox.sb',
-        cwd: '/test/project'
+        cwd: '/test/project',
       })
 
       expect(mockExeca).toHaveBeenCalledWith(
         'sandbox-exec',
-        expect.arrayContaining([
-          '-f', '/options/sandbox.sb',
-        ]),
+        expect.arrayContaining(['-f', '/options/sandbox.sb']),
         expect.any(Object),
       )
 

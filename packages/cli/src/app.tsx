@@ -34,11 +34,11 @@ export const App: React.FC = () => {
       const issueWatcher = new IssueWatcher(cfg)
       setWatcher(issueWatcher)
 
-      const claudeInvoker = new ClaudeInvoker({ 
-        claudePath: cfg.claudePath, 
+      const claudeInvoker = new ClaudeInvoker({
+        claudePath: cfg.claudePath,
         workDir: cfg.workDir,
         useSandbox: cfg.useSandbox,
-        sandboxConfigPath: cfg.sandboxConfigPath
+        sandboxConfigPath: cfg.sandboxConfigPath,
       })
       setInvoker(claudeInvoker)
 

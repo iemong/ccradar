@@ -49,30 +49,35 @@ export class ClaudeInvoker {
     console.log(`📝 Repository: ${issue.repo}`)
     console.log(`🏷️  Labels: ${issue.labels.join(', ')}`)
     console.log(`📂 Working directory: ${workDir}`)
-    
+
     let command: string
     let args: string[]
 
     if (useSandbox) {
-      const sandboxConfigPath = options?.sandboxConfigPath || 
-                               this.config?.sandboxConfigPath || 
-                               `${workDir}/claude-ccradar.sb`
-      
+      const sandboxConfigPath =
+        options?.sandboxConfigPath ||
+        this.config?.sandboxConfigPath ||
+        `${workDir}/claude-ccradar.sb`
+
       command = 'sandbox-exec'
       args = [
-        '-f', sandboxConfigPath,
-        '-D', `WORK_DIR=${workDir}`,
-        '-D', `HOME_DIR=${process.env.HOME}`,
+        '-f',
+        sandboxConfigPath,
+        '-D',
+        `WORK_DIR=${workDir}`,
+        '-D',
+        `HOME_DIR=${process.env.HOME}`,
         this.getClaudeCommand(),
-        '-p', prompt
+        '-p',
+        prompt,
       ]
-      
+
       console.log(`🔒 Sandbox mode: ENABLED`)
       console.log(`📋 Sandbox config: ${sandboxConfigPath}`)
     } else {
       command = this.getClaudeCommand()
       args = ['-p', prompt]
-      
+
       console.log(`⚠️  Sandbox mode: DISABLED`)
     }
 

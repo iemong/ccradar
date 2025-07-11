@@ -1,4 +1,4 @@
-import { readdir, stat } from 'node:fs/promises'
+import { stat } from 'node:fs/promises'
 import { join } from 'node:path'
 import { ClaudeInvoker, type Issue, IssueWatcher, Logger, loadConfig } from '@ccradar/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -191,11 +191,11 @@ describe('ccradar Integration Tests', () => {
 
       const config = loadConfig()
       const watcher = new IssueWatcher(config)
-      const invoker = new ClaudeInvoker({ 
-        claudePath: config.claudePath, 
+      const invoker = new ClaudeInvoker({
+        claudePath: config.claudePath,
         workDir: config.workDir,
         useSandbox: config.useSandbox,
-        sandboxConfigPath: config.sandboxConfigPath
+        sandboxConfigPath: config.sandboxConfigPath,
       })
       const logger = new Logger(join(config.cacheDir, 'logs'))
 
