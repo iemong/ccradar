@@ -143,7 +143,7 @@ describe('Dashboard', () => {
 
     const frame = lastFrame()
     // タイトルが切り捨てられていることを確認（...が含まれている）
-    expect(frame).toContain('Another Issue with a Very Long Title ')
+    expect(frame).toContain('Another Issue with a Very Long T...')
     expect(frame).toContain('...')
   })
 
