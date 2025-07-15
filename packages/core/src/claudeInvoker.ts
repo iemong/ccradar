@@ -1,5 +1,5 @@
 import { type Options as ExecaOptions, execa } from 'execa'
-import type { Issue } from './types.js'
+import type { ExecutionStatus, Issue } from './types.js'
 
 export interface ClaudeInvokeOptions {
   cwd?: string
@@ -7,6 +7,7 @@ export interface ClaudeInvokeOptions {
   stderr?: NodeJS.WritableStream
   useSandbox?: boolean
   sandboxConfigPath?: string
+  onStatusChange?: (issueNumber: number, status: ExecutionStatus, error?: string) => void
 }
 
 export interface ClaudeInvokerConfig {
@@ -44,6 +45,9 @@ export class ClaudeInvoker {
       cwd: workDir,
       stdio: ['inherit', 'pipe', 'pipe'],
     }
+
+    // Notify execution started
+    options?.onStatusChange?.(issue.number, 'running')
 
     console.log(`\n🚀 Invoking Claude for issue #${issue.number}: ${issue.title}`)
     console.log(`📝 Repository: ${issue.repo}`)
@@ -105,10 +109,17 @@ export class ClaudeInvoker {
 
       await subprocess
 
-      console.log('\n' + '-'.repeat(80))
+      console.log(`\n${'-'.repeat(80)}`)
       console.log('✅ Claude execution completed successfully')
+
+      // Notify execution completed
+      options?.onStatusChange?.(issue.number, 'completed')
     } catch (error) {
       console.error('\n❌ Claude execution failed:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+
+      // Notify execution failed
+      options?.onStatusChange?.(issue.number, 'error', errorMessage)
       throw error
     }
   }

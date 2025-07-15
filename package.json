@@ -4,6 +4,7 @@
   "description": "GitHub Issue監視とClaude Code自動実行ツール",
   "type": "module",
   "scripts": {
+    "start": "node --env-file=.env packages/cli/bin/ccradar.js",
     "dev": "pnpm -r --parallel run dev",
     "build": "pnpm -r run build",
     "test": "pnpm -r run test",

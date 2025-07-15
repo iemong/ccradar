@@ -1,4 +1,4 @@
-import type { Issue } from '@ccradar/core'
+import type { ExecutionStatus, Issue } from '@ccradar/core'
 import { Box, Text } from 'ink'
 import Spinner from 'ink-spinner'
 import type React from 'react'
@@ -19,7 +19,33 @@ export const Dashboard: React.FC<DashboardProps> = ({
   error,
 }) => {
   const formatTitle = (title: string): string => {
-    return title.length > 40 ? `${title.substring(0, 37)}...` : title
+    return title.length > 35 ? `${title.substring(0, 32)}...` : title
+  }
+
+  const getStatusIcon = (status?: ExecutionStatus): string => {
+    switch (status) {
+      case 'running':
+        return '🚀'
+      case 'completed':
+        return '✅'
+      case 'error':
+        return '❌'
+      default:
+        return '⏸️'
+    }
+  }
+
+  const getStatusColor = (status?: ExecutionStatus): string => {
+    switch (status) {
+      case 'running':
+        return 'yellow'
+      case 'completed':
+        return 'green'
+      case 'error':
+        return 'red'
+      default:
+        return 'gray'
+    }
   }
 
   return (
@@ -58,8 +84,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <Text bold>
                 {' '.repeat(3)}
                 {'#'.padEnd(6)}
-                {'Title'.padEnd(42)}
-                {'Labels'.padEnd(20)}
+                {'Title'.padEnd(37)}
+                {'Status'.padEnd(8)}
+                {'Labels'.padEnd(18)}
                 {'Repo'}
               </Text>
             </Box>
@@ -71,8 +98,21 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <Text color={index === selectedIndex ? 'yellow' : undefined}>
                   {index === selectedIndex ? ' > ' : '   '}
                   {issue.number.toString().padEnd(6)}
-                  {formatTitle(issue.title).padEnd(42)}
-                  {issue.labels.join(', ').substring(0, 18).padEnd(20)}
+                  {formatTitle(issue.title).padEnd(37)}
+                </Text>
+                <Text color={getStatusColor(issue.executionStatus)}>
+                  {getStatusIcon(issue.executionStatus)}{' '}
+                  {issue.executionStatus === 'running' ? (
+                    <>
+                      <Spinner type="dots" /> running
+                    </>
+                  ) : (
+                    issue.executionStatus || 'idle'
+                  )}
+                  {''.padEnd(Math.max(0, 6 - (issue.executionStatus || 'idle').length))}
+                </Text>
+                <Text color={index === selectedIndex ? 'yellow' : undefined}>
+                  {issue.labels.join(', ').substring(0, 16).padEnd(18)}
                   {issue.repo}
                 </Text>
               </Box>

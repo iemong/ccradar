@@ -2,6 +2,7 @@ import { join } from 'node:path'
 import {
   ClaudeInvoker,
   type Config,
+  type ExecutionStatus,
   type Issue,
   IssueWatcher,
   Logger,
@@ -25,6 +26,24 @@ export const App: React.FC = () => {
   const [watcher, setWatcher] = useState<IssueWatcher | null>(null)
   const [invoker, setInvoker] = useState<ClaudeInvoker | null>(null)
   const [logger, setLogger] = useState<Logger | null>(null)
+
+  const updateIssueStatus = useCallback(
+    (issueNumber: number, status: ExecutionStatus, error?: string) => {
+      setIssues((prevIssues) =>
+        prevIssues.map((issue) =>
+          issue.number === issueNumber
+            ? {
+                ...issue,
+                executionStatus: status,
+                lastExecuted: new Date(),
+                executionError: error,
+              }
+            : issue,
+        ),
+      )
+    },
+    [],
+  )
 
   useEffect(() => {
     try {
@@ -68,14 +87,21 @@ export const App: React.FC = () => {
         for (const issue of newIssues) {
           if (invoker) {
             await logger.info(`Auto-invoking Claude for issue #${issue.number}`)
-            await invoker.invoke(issue)
+            await invoker.invoke(issue, {
+              onStatusChange: updateIssueStatus,
+            })
           }
         }
       }
 
       // Get all assigned issues for display
       const allIssues = await watcher.getAllAssignedIssues()
-      setIssues(allIssues)
+      setIssues(
+        allIssues.map((issue) => ({
+          ...issue,
+          executionStatus: issue.executionStatus || 'idle',
+        })),
+      )
       setLastCheck(new Date())
 
       await logger.info(`Found ${allIssues.length} total assigned issues`)
@@ -86,7 +112,7 @@ export const App: React.FC = () => {
     } finally {
       setLoading(false)
     }
-  }, [watcher, invoker, logger])
+  }, [watcher, invoker, logger, updateIssueStatus])
 
   // Initial check and polling
   useEffect(() => {
@@ -116,7 +142,9 @@ export const App: React.FC = () => {
       await logger.info(`Manual trigger for issue #${issue.number}`)
 
       try {
-        await invoker.invoke(issue)
+        await invoker.invoke(issue, {
+          onStatusChange: updateIssueStatus,
+        })
         await logger.info(`Successfully invoked Claude for issue #${issue.number}`)
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Unknown error'

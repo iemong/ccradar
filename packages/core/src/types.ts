@@ -18,6 +18,8 @@ export interface IssueEvent {
   timestamp: string
 }
 
+export type ExecutionStatus = 'idle' | 'running' | 'completed' | 'error'
+
 export interface Issue {
   number: number
   title: string
@@ -27,4 +29,7 @@ export interface Issue {
   repo: string
   url: string
   updatedAt: string
+  executionStatus?: ExecutionStatus
+  lastExecuted?: Date
+  executionError?: string
 }
