@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { loadConfig } from '../src/config.js'
 
 describe('Config', () => {
@@ -14,8 +14,8 @@ describe('Config', () => {
 
   describe('loadConfig', () => {
     it('should load basic configuration', () => {
-      process.env.GITHUB_TOKEN = 'test-token'
-      process.env.GITHUB_REPOS = 'owner/repo1,owner/repo2'
+      process.env.CCRADAR_GITHUB_TOKEN = 'test-token'
+      process.env.CCRADAR_GITHUB_REPOS = 'owner/repo1,owner/repo2'
 
       const config = loadConfig()
 
@@ -25,8 +25,8 @@ describe('Config', () => {
     })
 
     it('should use custom trigger label', () => {
-      process.env.GITHUB_TOKEN = 'test-token'
-      process.env.GITHUB_REPOS = 'owner/repo'
+      process.env.CCRADAR_GITHUB_TOKEN = 'test-token'
+      process.env.CCRADAR_GITHUB_REPOS = 'owner/repo'
       process.env.TRIGGER_LABEL = 'auto-implement'
 
       const config = loadConfig()
@@ -35,8 +35,8 @@ describe('Config', () => {
     })
 
     it('should use custom cache directory', () => {
-      process.env.GITHUB_TOKEN = 'test-token'
-      process.env.GITHUB_REPOS = 'owner/repo'
+      process.env.CCRADAR_GITHUB_TOKEN = 'test-token'
+      process.env.CCRADAR_GITHUB_REPOS = 'owner/repo'
       process.env.CCRADAR_CACHE_DIR = '/custom/cache/dir'
 
       const config = loadConfig()
@@ -45,8 +45,8 @@ describe('Config', () => {
     })
 
     it('should use custom Claude path', () => {
-      process.env.GITHUB_TOKEN = 'test-token'
-      process.env.GITHUB_REPOS = 'owner/repo'
+      process.env.CCRADAR_GITHUB_TOKEN = 'test-token'
+      process.env.CCRADAR_GITHUB_REPOS = 'owner/repo'
       process.env.CLAUDE_PATH = '/custom/claude/path'
 
       const config = loadConfig()
@@ -55,8 +55,8 @@ describe('Config', () => {
     })
 
     it('should use custom working directory', () => {
-      process.env.GITHUB_TOKEN = 'test-token'
-      process.env.GITHUB_REPOS = 'owner/repo'
+      process.env.CCRADAR_GITHUB_TOKEN = 'test-token'
+      process.env.CCRADAR_GITHUB_REPOS = 'owner/repo'
       process.env.CCRADAR_WORK_DIR = '/custom/work/dir'
 
       const config = loadConfig()
@@ -65,8 +65,8 @@ describe('Config', () => {
     })
 
     it('should return undefined for workDir if not set', () => {
-      process.env.GITHUB_TOKEN = 'test-token'
-      process.env.GITHUB_REPOS = 'owner/repo'
+      process.env.CCRADAR_GITHUB_TOKEN = 'test-token'
+      process.env.CCRADAR_GITHUB_REPOS = 'owner/repo'
       delete process.env.CCRADAR_WORK_DIR
 
       const config = loadConfig()
@@ -75,31 +75,31 @@ describe('Config', () => {
     })
 
     it('should throw error if GITHUB_TOKEN is missing', () => {
-      delete process.env.GITHUB_TOKEN
-      process.env.GITHUB_REPOS = 'owner/repo'
+      delete process.env.CCRADAR_GITHUB_TOKEN
+      process.env.CCRADAR_GITHUB_REPOS = 'owner/repo'
 
-      expect(() => loadConfig()).toThrow('GITHUB_TOKEN environment variable is required')
+      expect(() => loadConfig()).toThrow('CCRADAR_GITHUB_TOKEN environment variable is required')
     })
 
     it('should throw error if GITHUB_REPOS is missing', () => {
-      process.env.GITHUB_TOKEN = 'test-token'
-      delete process.env.GITHUB_REPOS
+      process.env.CCRADAR_GITHUB_TOKEN = 'test-token'
+      delete process.env.CCRADAR_GITHUB_REPOS
 
-      expect(() => loadConfig()).toThrow('GITHUB_REPOS environment variable is required')
+      expect(() => loadConfig()).toThrow('CCRADAR_GITHUB_REPOS environment variable is required')
     })
 
     it('should throw error if GITHUB_REPOS is empty', () => {
-      process.env.GITHUB_TOKEN = 'test-token'
-      process.env.GITHUB_REPOS = '  ,  ,  '
+      process.env.CCRADAR_GITHUB_TOKEN = 'test-token'
+      process.env.CCRADAR_GITHUB_REPOS = '  ,  ,  '
 
       expect(() => loadConfig()).toThrow(
-        'At least one repository must be specified in GITHUB_REPOS',
+        'At least one repository must be specified in CCRADAR_GITHUB_REPOS',
       )
     })
 
     it('should trim and filter repository names', () => {
-      process.env.GITHUB_TOKEN = 'test-token'
-      process.env.GITHUB_REPOS = ' owner/repo1 , , owner/repo2 , '
+      process.env.CCRADAR_GITHUB_TOKEN = 'test-token'
+      process.env.CCRADAR_GITHUB_REPOS = ' owner/repo1 , , owner/repo2 , '
 
       const config = loadConfig()
 
