@@ -37,7 +37,7 @@ export class Logger {
       data,
     }
 
-    const logLine = JSON.stringify(entry) + '\n'
+    const logLine = `${JSON.stringify(entry)}\n`
     await appendFile(this.getLogFile(), logLine)
   }
 

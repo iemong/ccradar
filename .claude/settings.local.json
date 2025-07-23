@@ -26,7 +26,8 @@
       "Bash(mkdir:*)",
       "Bash(cp:*)",
       "Bash(mv:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(pnpm biome check:*)"
     ],
     "deny": []
   }

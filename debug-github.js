@@ -4,7 +4,7 @@ import { config as dotenvConfig } from 'dotenv'
 dotenvConfig()
 
 const token = process.env.GITHUB_TOKEN
-console.log('Token prefix:', token?.substring(0, 10) + '...')
+console.log('Token prefix:', `${token?.substring(0, 10)}...`)
 console.log('Token length:', token?.length)
 
 const octokit = new Octokit({

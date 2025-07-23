@@ -70,7 +70,7 @@ export class GitHubClient {
         stdio: 'pipe',
       })
       return output.trim()
-    } catch (error) {
+    } catch (_error) {
       throw new Error('Failed to get current user from GitHub CLI')
     }
   }

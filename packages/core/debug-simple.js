@@ -1,7 +1,7 @@
 import { Octokit } from '@octokit/rest'
 
 const token = process.env.GITHUB_TOKEN
-console.log('Token prefix:', token?.substring(0, 10) + '...')
+console.log('Token prefix:', `${token?.substring(0, 10)}...`)
 console.log('Token length:', token?.length)
 
 if (!token) {

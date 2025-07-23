@@ -28,7 +28,7 @@ export async function getCurrentRepoInfo(cwd: string = process.cwd()): Promise<R
       name: repoData.name,
       fullName: `${repoData.owner.login}/${repoData.name}`,
     }
-  } catch (error) {
+  } catch (_error) {
     // GitHub CLIが失敗した場合はgit remoteから取得を試行
     try {
       const remoteUrl = execSync('git remote get-url origin', {
@@ -46,7 +46,7 @@ export async function getCurrentRepoInfo(cwd: string = process.cwd()): Promise<R
           fullName: `${owner}/${name}`,
         }
       }
-    } catch (gitError) {
+    } catch (_gitError) {
       // git remoteも失敗した場合
     }
 
@@ -71,7 +71,7 @@ export async function checkGitHubAuth(): Promise<boolean> {
       stdio: 'ignore', // 全ての出力を無視
     })
     return true
-  } catch (error: any) {
+  } catch (_error) {
     // 終了コードが0でない場合は認証されていない
     return false
   }
