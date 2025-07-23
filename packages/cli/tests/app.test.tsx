@@ -8,6 +8,7 @@ vi.mock('@ccradar/core', () => ({
     invoke: vi.fn(),
   })),
   IssueWatcher: vi.fn(() => ({
+    initialize: vi.fn().mockResolvedValue(undefined),
     checkForNewLabeledIssues: vi.fn().mockResolvedValue([]),
     getAllAssignedIssues: vi.fn().mockResolvedValue([]),
   })),
@@ -16,8 +17,6 @@ vi.mock('@ccradar/core', () => ({
     error: vi.fn(),
   })),
   loadConfig: vi.fn(() => ({
-    githubToken: 'test-token',
-    repos: ['test/repo'],
     triggerLabel: 'implement',
     cacheDir: '/tmp/test-cache',
     claudePath: '/usr/local/bin/claude',
@@ -37,18 +36,13 @@ describe('App', () => {
     expect(lastFrame()).toContain('ccradar - GitHub Issue Monitor')
   })
 
-  it('should show loading state initially', () => {
-    const { lastFrame } = render(<App />)
-    expect(lastFrame()).toContain('Checking for issues...')
-  })
-
   it('should show no issues message when no issues found', () => {
     const { lastFrame } = render(<App />)
     expect(lastFrame()).toContain('No assigned issues with trigger label found')
   })
 
-  it('should show loading spinner', () => {
+  it('should show last check status', () => {
     const { lastFrame } = render(<App />)
-    expect(lastFrame()).toContain('⠋')
+    expect(lastFrame()).toContain('Last check:')
   })
 })

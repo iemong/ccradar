@@ -41,8 +41,6 @@ describe('Core Index Exports', () => {
   it('should instantiate exported classes', () => {
     // 基本的なインスタンス化のテスト
     const config = {
-      githubToken: 'test',
-      repos: ['test/repo'],
       triggerLabel: 'test',
       cacheDir: '/tmp/test',
     }
@@ -62,6 +60,9 @@ describe('Core Index Exports', () => {
       'IssueWatcher',
       'Logger',
       'loadConfig',
+      'getCurrentRepoInfo',
+      'checkGitHubCLI',
+      'checkGitHubAuth',
     ]
 
     expectedExports.forEach((exportName) => {
@@ -78,6 +79,9 @@ describe('Core Index Exports', () => {
       'IssueWatcher',
       'Logger',
       'loadConfig',
+      'getCurrentRepoInfo',
+      'checkGitHubCLI',
+      'checkGitHubAuth',
     ]
 
     // すべての実際のエクスポートが期待されるもののいずれかであることを確認

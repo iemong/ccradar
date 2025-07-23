@@ -1,0 +1,66 @@
+# Source files
+src/
+tests/
+packages/*/src/
+packages/*/tests/
+
+# Build artifacts
+*.tsbuildinfo
+.turbo/
+coverage/
+
+# Development files
+.env
+.env.*
+.vscode/
+.idea/
+lefthook.yml
+.lefthook.yml
+biome.json
+vitest.config.ts
+tsconfig.json
+packages/*/tsconfig.json
+pnpm-workspace.yaml
+
+# Testing
+*.test.ts
+*.test.js
+__tests__/
+
+# Debug files
+debug-*.js
+packages/*/debug-*.js
+
+# Scripts
+*.sh
+
+# Sandbox configs (keep main one, remove extras)
+claude-sandbox.sb
+
+# Claude specific
+.claude/
+
+# Documentation drafts
+docs/
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Cache and build tools
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+packages/*/node_modules/
+*.map
+
+# ccradar specific runtime
+.ccradar/
+
+# GitHub workflows (not needed for package)
+.github/

@@ -1,13 +1,13 @@
 #!/usr/bin/env node
-import type { CLIOptions } from '@ccradar/core'
 import { program } from 'commander'
 import { render } from 'ink'
 import { App } from './app.js'
+import type { CLIOptions } from './config.js'
 
 program
   .name('ccradar')
   .description('GitHub Issue監視とClaude Code自動実行ツール')
-  .version('1.0.0')
+  .version('0.0.4')
   .option('-l, --trigger-label <label>', 'トリガーラベル', 'implement')
   .option('-c, --cache-dir <dir>', 'キャッシュディレクトリ')
   .option('-p, --claude-path <path>', 'Claude CLIのパス')

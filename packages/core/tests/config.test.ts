@@ -1,109 +1,85 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { loadConfig } from '../src/config.js'
 
 describe('Config', () => {
-  const originalEnv = process.env
-
-  beforeEach(() => {
-    process.env = { ...originalEnv }
-  })
-
-  afterEach(() => {
-    process.env = originalEnv
-  })
-
   describe('loadConfig', () => {
-    it('should load basic configuration', () => {
-      process.env.CCRADAR_GITHUB_TOKEN = 'test-token'
-      process.env.CCRADAR_GITHUB_REPOS = 'owner/repo1,owner/repo2'
-
+    it('should load basic configuration with defaults', () => {
       const config = loadConfig()
 
-      expect(config.githubToken).toBe('test-token')
-      expect(config.repos).toEqual(['owner/repo1', 'owner/repo2'])
       expect(config.triggerLabel).toBe('implement')
+      expect(config.cacheDir).toContain('.ccradar')
+      expect(config.useSandbox).toBe(false)
     })
 
-    it('should use custom trigger label', () => {
-      process.env.CCRADAR_GITHUB_TOKEN = 'test-token'
-      process.env.CCRADAR_GITHUB_REPOS = 'owner/repo'
-      process.env.TRIGGER_LABEL = 'auto-implement'
-
-      const config = loadConfig()
+    it('should use CLI options for trigger label', () => {
+      const config = loadConfig({ triggerLabel: 'auto-implement' })
 
       expect(config.triggerLabel).toBe('auto-implement')
     })
 
-    it('should use custom cache directory', () => {
-      process.env.CCRADAR_GITHUB_TOKEN = 'test-token'
-      process.env.CCRADAR_GITHUB_REPOS = 'owner/repo'
-      process.env.CCRADAR_CACHE_DIR = '/custom/cache/dir'
-
-      const config = loadConfig()
+    it('should use CLI options for cache directory', () => {
+      const config = loadConfig({ cacheDir: '/custom/cache/dir' })
 
       expect(config.cacheDir).toBe('/custom/cache/dir')
     })
 
-    it('should use custom Claude path', () => {
-      process.env.CCRADAR_GITHUB_TOKEN = 'test-token'
-      process.env.CCRADAR_GITHUB_REPOS = 'owner/repo'
-      process.env.CLAUDE_PATH = '/custom/claude/path'
-
-      const config = loadConfig()
+    it('should use CLI options for Claude path', () => {
+      const config = loadConfig({ claudePath: '/custom/claude/path' })
 
       expect(config.claudePath).toBe('/custom/claude/path')
     })
 
-    it('should use custom working directory', () => {
-      process.env.CCRADAR_GITHUB_TOKEN = 'test-token'
-      process.env.CCRADAR_GITHUB_REPOS = 'owner/repo'
-      process.env.CCRADAR_WORK_DIR = '/custom/work/dir'
-
-      const config = loadConfig()
+    it('should use CLI options for working directory', () => {
+      const config = loadConfig({ workDir: '/custom/work/dir' })
 
       expect(config.workDir).toBe('/custom/work/dir')
     })
 
-    it('should return undefined for workDir if not set', () => {
-      process.env.CCRADAR_GITHUB_TOKEN = 'test-token'
-      process.env.CCRADAR_GITHUB_REPOS = 'owner/repo'
-      delete process.env.CCRADAR_WORK_DIR
-
+    it('should return undefined for workDir if not provided', () => {
       const config = loadConfig()
 
       expect(config.workDir).toBeUndefined()
     })
 
-    it('should throw error if GITHUB_TOKEN is missing', () => {
-      delete process.env.CCRADAR_GITHUB_TOKEN
-      process.env.CCRADAR_GITHUB_REPOS = 'owner/repo'
+    it('should use CLI options for sandbox configuration', () => {
+      const config = loadConfig({
+        useSandbox: true,
+        sandboxConfig: '/custom/sandbox.sb',
+      })
 
-      expect(() => loadConfig()).toThrow('CCRADAR_GITHUB_TOKEN environment variable is required')
+      expect(config.useSandbox).toBe(true)
+      expect(config.sandboxConfigPath).toBe('/custom/sandbox.sb')
     })
 
-    it('should throw error if GITHUB_REPOS is missing', () => {
-      process.env.CCRADAR_GITHUB_TOKEN = 'test-token'
-      delete process.env.CCRADAR_GITHUB_REPOS
-
-      expect(() => loadConfig()).toThrow('CCRADAR_GITHUB_REPOS environment variable is required')
-    })
-
-    it('should throw error if GITHUB_REPOS is empty', () => {
-      process.env.CCRADAR_GITHUB_TOKEN = 'test-token'
-      process.env.CCRADAR_GITHUB_REPOS = '  ,  ,  '
-
-      expect(() => loadConfig()).toThrow(
-        'At least one repository must be specified in CCRADAR_GITHUB_REPOS',
-      )
-    })
-
-    it('should trim and filter repository names', () => {
-      process.env.CCRADAR_GITHUB_TOKEN = 'test-token'
-      process.env.CCRADAR_GITHUB_REPOS = ' owner/repo1 , , owner/repo2 , '
-
+    it('should default to no sandbox when not specified', () => {
       const config = loadConfig()
 
-      expect(config.repos).toEqual(['owner/repo1', 'owner/repo2'])
+      expect(config.useSandbox).toBe(false)
+      expect(config.sandboxConfigPath).toBeUndefined()
+    })
+
+    it('should handle explicit false for sandbox flag', () => {
+      const config = loadConfig({ useSandbox: false })
+
+      expect(config.useSandbox).toBe(false)
+    })
+
+    it('should override defaults with CLI options', () => {
+      const config = loadConfig({
+        triggerLabel: 'custom-label',
+        cacheDir: '/custom/cache',
+        claudePath: '/custom/claude',
+        workDir: '/custom/work',
+        useSandbox: true,
+        sandboxConfig: '/custom/sandbox.sb',
+      })
+
+      expect(config.triggerLabel).toBe('custom-label')
+      expect(config.cacheDir).toBe('/custom/cache')
+      expect(config.claudePath).toBe('/custom/claude')
+      expect(config.workDir).toBe('/custom/work')
+      expect(config.useSandbox).toBe(true)
+      expect(config.sandboxConfigPath).toBe('/custom/sandbox.sb')
     })
   })
 })

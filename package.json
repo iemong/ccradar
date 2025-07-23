@@ -1,12 +1,17 @@
 {
-  "name": "ccradar",
-  "version": "1.0.0",
+  "name": "ccradar-cli",
+  "version": "0.0.4",
   "description": "GitHub Issue監視とClaude Code自動実行ツール",
   "type": "module",
+  "bin": {
+    "ccradar": "./dist/cli.js"
+  },
   "scripts": {
     "start": "node --env-file=.env packages/cli/bin/ccradar.js",
     "dev": "pnpm -r --parallel run dev",
-    "build": "pnpm -r run build",
+    "build": "tsc -p tsconfig.root.json",
+    "build:packages": "pnpm -r run build",
+    "prepublishOnly": "pnpm build",
     "test": "pnpm -r run test",
     "test:watch": "pnpm -r run test:watch",
     "test:coverage": "pnpm -r run test:coverage",
@@ -28,18 +33,36 @@
     "automation",
     "claude"
   ],
-  "author": "",
+  "author": "iemong",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iemong/ccradar.git"
+  },
+  "homepage": "https://github.com/iemong/ccradar",
+  "bugs": {
+    "url": "https://github.com/iemong/ccradar/issues"
+  },
   "engines": {
     "node": ">=22.0.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.1",
     "@types/node": "^24.0.12",
+    "@types/react": "^18.3.19",
     "@vitest/coverage-v8": "^3.2.4",
     "lefthook": "^1.12.1",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
   },
-  "packageManager": "pnpm@9.11.0+sha512.0a203ffaed5a3f63242cd064c8fb5892366c103e328079318f78062f24ea8c9d50bc6a47aa3567cabefd824d170e78fa2745ed1f16b132e16436146b7688f19b"
+  "packageManager": "pnpm@9.11.0+sha512.0a203ffaed5a3f63242cd064c8fb5892366c103e328079318f78062f24ea8c9d50bc6a47aa3567cabefd824d170e78fa2745ed1f16b132e16436146b7688f19b",
+  "dependencies": {
+    "@octokit/rest": "^22.0.0",
+    "commander": "^14.0.0",
+    "dotenv": "^16.4.7",
+    "execa": "^9.6.0",
+    "ink": "^5.2.0",
+    "ink-spinner": "^5.0.0",
+    "react": "^18.3.1"
+  }
 }

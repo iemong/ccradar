@@ -1,18 +1,15 @@
 import { join } from 'node:path'
-import type { CLIOptions } from '@ccradar/core'
-import {
-  ClaudeInvoker,
-  type Config,
-  type ExecutionStatus,
-  type Issue,
-  IssueWatcher,
-  Logger,
-  loadConfig,
-} from '@ccradar/core'
 import { useApp, useInput } from 'ink'
 import type React from 'react'
 import { useCallback, useEffect, useState } from 'react'
+import { ClaudeInvoker } from './claudeInvoker.js'
+import type { CLIOptions } from './config.js'
+import { loadConfig } from './config.js'
+import { IssueWatcher } from './listAssigned.js'
+import { Logger } from './logger.js'
+import type { Config, ExecutionStatus, Issue } from './types.js'
 import { Dashboard } from './ui/dashboard.js'
+import { PromptInput } from './ui/promptInput.js'
 
 const POLLING_INTERVAL = 60000 // 60 seconds
 
@@ -27,6 +24,7 @@ export const App: React.FC<{ cliOptions: CLIOptions }> = ({ cliOptions }) => {
   const [watcher, setWatcher] = useState<IssueWatcher | null>(null)
   const [invoker, setInvoker] = useState<ClaudeInvoker | null>(null)
   const [logger, setLogger] = useState<Logger | null>(null)
+  const [promptMode, setPromptMode] = useState<{ issue: Issue } | null>(null)
 
   const updateIssueStatus = useCallback(
     (issueNumber: number, status: ExecutionStatus, error?: string) => {
@@ -134,6 +132,9 @@ export const App: React.FC<{ cliOptions: CLIOptions }> = ({ cliOptions }) => {
   }, [watcher, checkIssues])
 
   useInput(async (input: string, key) => {
+    // プロンプト入力モード中は処理しない
+    if (promptMode) return
+
     if (input === 'q') {
       await logger?.info('Application exit requested')
       exit()
@@ -147,12 +148,23 @@ export const App: React.FC<{ cliOptions: CLIOptions }> = ({ cliOptions }) => {
       setSelectedIndex(selectedIndex + 1)
     }
 
-    if (key.return && issues[selectedIndex] && invoker && logger) {
+    if (key.return && issues[selectedIndex]) {
       const issue = issues[selectedIndex]
-      await logger.info(`Manual trigger for issue #${issue.number}`)
+      setPromptMode({ issue })
+    }
+  })
+
+  const handlePromptSubmit = useCallback(
+    async (prompt: string) => {
+      if (!promptMode || !invoker || !logger) return
+
+      const issue = promptMode.issue
+      setPromptMode(null)
+
+      await logger.info(`Manual trigger for issue #${issue.number} with custom prompt`)
 
       try {
-        await invoker.invoke(issue, {
+        await invoker.invoke(issue, prompt, {
           onStatusChange: updateIssueStatus,
         })
         await logger.info(`Successfully invoked Claude for issue #${issue.number}`)
@@ -163,8 +175,23 @@ export const App: React.FC<{ cliOptions: CLIOptions }> = ({ cliOptions }) => {
         })
         setError(`Failed to invoke Claude: ${errorMessage}`)
       }
-    }
-  })
+    },
+    [promptMode, invoker, logger, updateIssueStatus],
+  )
+
+  const handlePromptCancel = useCallback(() => {
+    setPromptMode(null)
+  }, [])
+
+  if (promptMode) {
+    return (
+      <PromptInput
+        issue={promptMode.issue}
+        onSubmit={handlePromptSubmit}
+        onCancel={handlePromptCancel}
+      />
+    )
+  }
 
   return (
     <Dashboard

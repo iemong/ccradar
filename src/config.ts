@@ -18,7 +18,6 @@ export function loadConfig(cliOptions: CLIOptions = {}): Config {
   const workDir = cliOptions.workDir
   const useSandbox = cliOptions.useSandbox || false
   const sandboxConfigPath = cliOptions.sandboxConfig
-
   return {
     triggerLabel,
     cacheDir,

@@ -3,11 +3,6 @@ import { join } from 'node:path'
 import { ClaudeInvoker, type Issue, IssueWatcher, Logger, loadConfig } from '@ccradar/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-// Mock dotenv to prevent .env file from being loaded
-vi.mock('dotenv', () => ({
-  config: vi.fn(),
-}))
-
 const testCacheDir = join(process.cwd(), 'tests', 'fixtures', 'cache')
 const _testConfigDir = join(process.cwd(), 'tests', 'fixtures')
 
@@ -25,69 +20,43 @@ describe('ccradar Integration Tests', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    // Clear environment variables
-    delete process.env.GITHUB_TOKEN
-    delete process.env.GITHUB_REPOS
-    delete process.env.TRIGGER_LABEL
-    delete process.env.CLAUDE_PATH
-    delete process.env.CCRADAR_CACHE_DIR
-    delete process.env.CCRADAR_USE_SANDBOX
-    delete process.env.CCRADAR_SANDBOX_CONFIG
   })
 
   describe('Configuration Loading', () => {
-    it('should load configuration from environment variables', () => {
-      process.env.GITHUB_TOKEN = 'test-token'
-      process.env.GITHUB_REPOS = 'owner/repo1,owner/repo2'
-      process.env.TRIGGER_LABEL = 'custom-label'
-      process.env.CLAUDE_PATH = '/custom/claude'
-      process.env.CCRADAR_CACHE_DIR = '/custom/cache'
+    it('should load configuration with CLI options', () => {
+      const config = loadConfig({
+        triggerLabel: 'custom-label',
+        claudePath: '/custom/claude',
+        cacheDir: '/custom/cache',
+      })
 
-      const config = loadConfig()
-
-      expect(config.githubToken).toBe('test-token')
-      expect(config.repos).toEqual(['owner/repo1', 'owner/repo2'])
       expect(config.triggerLabel).toBe('custom-label')
       expect(config.claudePath).toBe('/custom/claude')
       expect(config.cacheDir).toBe('/custom/cache')
     })
 
-    it('should use default values when optional environment variables are not set', () => {
-      process.env.GITHUB_TOKEN = 'test-token'
-      process.env.GITHUB_REPOS = 'owner/repo'
-      delete process.env.TRIGGER_LABEL
-      delete process.env.CLAUDE_PATH
-      delete process.env.CCRADAR_CACHE_DIR
-
+    it('should use default values when options are not provided', () => {
       const config = loadConfig()
 
-      expect(config.githubToken).toBe('test-token')
-      expect(config.repos).toEqual(['owner/repo'])
       expect(config.triggerLabel).toBe('implement')
       expect(config.claudePath).toBeUndefined()
-      expect(config.cacheDir).toBe(join(process.env.HOME || process.cwd(), '.ccradar'))
+      expect(config.cacheDir).toContain('.ccradar')
       expect(config.useSandbox).toBe(false)
       expect(config.sandboxConfigPath).toBeUndefined()
     })
 
-    it('should load sandbox configuration from environment variables', () => {
-      process.env.GITHUB_TOKEN = 'test-token'
-      process.env.GITHUB_REPOS = 'owner/repo'
-      process.env.CCRADAR_USE_SANDBOX = 'true'
-      process.env.CCRADAR_SANDBOX_CONFIG = '/custom/sandbox.sb'
-
-      const config = loadConfig()
+    it('should load sandbox configuration from CLI options', () => {
+      const config = loadConfig({
+        useSandbox: true,
+        sandboxConfig: '/custom/sandbox.sb',
+      })
 
       expect(config.useSandbox).toBe(true)
       expect(config.sandboxConfigPath).toBe('/custom/sandbox.sb')
     })
 
     it('should handle sandbox configuration with false value', () => {
-      process.env.GITHUB_TOKEN = 'test-token'
-      process.env.GITHUB_REPOS = 'owner/repo'
-      process.env.CCRADAR_USE_SANDBOX = 'false'
-
-      const config = loadConfig()
+      const config = loadConfig({ useSandbox: false })
 
       expect(config.useSandbox).toBe(false)
     })
@@ -95,14 +64,12 @@ describe('ccradar Integration Tests', () => {
 
   describe('Component Integration', () => {
     it('should create and use IssueWatcher with Logger', async () => {
-      const mockConfig = {
-        githubToken: 'test-token',
-        repos: ['owner/repo'],
+      const mockConfig = loadConfig({
         triggerLabel: 'implement',
         cacheDir: testCacheDir,
-      }
+      })
 
-      const watcher = new IssueWatcher(mockConfig)
+      const watcher = new IssueWatcher(mockConfig, process.cwd())
       const logger = new Logger(join(mockConfig.cacheDir, 'logs'))
 
       expect(watcher).toBeInstanceOf(IssueWatcher)
@@ -145,12 +112,10 @@ describe('ccradar Integration Tests', () => {
     })
 
     it('should handle cache directory structure', async () => {
-      const config = {
-        githubToken: 'test-token',
-        repos: ['owner/repo'],
+      const config = loadConfig({
         triggerLabel: 'implement',
         cacheDir: testCacheDir,
-      }
+      })
 
       const logger = new Logger(join(config.cacheDir, 'logs'))
       await logger.info('Cache structure test')
@@ -162,20 +127,6 @@ describe('ccradar Integration Tests', () => {
   })
 
   describe('Error Handling Integration', () => {
-    it('should handle missing GITHUB_TOKEN', () => {
-      delete process.env.GITHUB_TOKEN
-      process.env.GITHUB_REPOS = 'owner/repo'
-
-      expect(() => loadConfig()).toThrow('GITHUB_TOKEN environment variable is required')
-    })
-
-    it('should handle missing GITHUB_REPOS', () => {
-      process.env.GITHUB_TOKEN = 'test-token'
-      delete process.env.GITHUB_REPOS
-
-      expect(() => loadConfig()).toThrow('GITHUB_REPOS environment variable is required')
-    })
-
     it('should handle logger with valid path', async () => {
       const logger = new Logger(join(testCacheDir, 'test-logs'))
 
@@ -186,11 +137,11 @@ describe('ccradar Integration Tests', () => {
 
   describe('Workflow Integration', () => {
     it('should demonstrate complete workflow components', async () => {
-      process.env.GITHUB_TOKEN = 'test-token'
-      process.env.GITHUB_REPOS = 'owner/repo'
+      const config = loadConfig({
+        triggerLabel: 'implement',
+        cacheDir: testCacheDir,
+      })
 
-      const config = loadConfig()
-      const watcher = new IssueWatcher(config)
       const invoker = new ClaudeInvoker({
         claudePath: config.claudePath,
         workDir: config.workDir,
@@ -203,7 +154,6 @@ describe('ccradar Integration Tests', () => {
       await logger.info('Workflow integration test started')
 
       // Verify all components are created
-      expect(watcher).toBeInstanceOf(IssueWatcher)
       expect(invoker).toBeInstanceOf(ClaudeInvoker)
       expect(logger).toBeInstanceOf(Logger)
 

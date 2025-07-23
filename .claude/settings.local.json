@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm typecheck:*)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(gh auth:*)",
+      "Bash(node:*)",
+      "Bash(npx:*)",
+      "Bash(echo:*)",
+      "Bash(npm cache clean:*)",
+      "Bash(packages/cli/bin/ccradar.js)",
+      "Bash(gh:*)",
+      "Bash(pkill:*)",
+      "Bash(npm view:*)",
+      "Bash(FORCE_COLOR=0 npx ccradar)",
+      "Bash(DEBUG=*)",
+      "Bash(pnpm add:*)",
+      "mcp__o3__o3-search",
+      "Bash(./dist/sea/ccradar:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(./dist/binaries/ccradar-macos-arm64:*)",
+      "Bash(pnpm install:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Bash(grep:*)"
+    ],
+    "deny": []
+  }
+}

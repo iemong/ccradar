@@ -4,6 +4,7 @@ import type { Config, Issue } from '../src/types.js'
 
 // 依存関係をモック
 const mockGitHubClient = {
+  initialize: vi.fn(),
   getCurrentUser: vi.fn(),
   getAssignedIssues: vi.fn(),
   getIssueEvents: vi.fn(),
@@ -26,15 +27,13 @@ vi.mock('../src/cacheService.js', () => ({
 describe('IssueWatcher', () => {
   let watcher: IssueWatcher
   const config: Config = {
-    githubToken: 'test-token',
-    repos: ['owner/repo'],
     triggerLabel: 'implement',
     cacheDir: '/tmp/test',
   }
 
   beforeEach(() => {
     vi.clearAllMocks()
-    watcher = new IssueWatcher(config)
+    watcher = new IssueWatcher(config, '/test/repo')
   })
 
   afterEach(() => {
@@ -44,6 +43,14 @@ describe('IssueWatcher', () => {
   describe('constructor', () => {
     it('should initialize with config', () => {
       expect(watcher).toBeInstanceOf(IssueWatcher)
+    })
+  })
+
+  describe('initialize', () => {
+    it('should call GitHubClient.initialize', async () => {
+      await watcher.initialize()
+
+      expect(mockGitHubClient.initialize).toHaveBeenCalled()
     })
   })
 
@@ -60,7 +67,6 @@ describe('IssueWatcher', () => {
     }
 
     it('should return new labeled issues', async () => {
-      mockGitHubClient.getCurrentUser.mockResolvedValue('testuser')
       mockGitHubClient.getAssignedIssues.mockResolvedValue([mockIssue])
       mockGitHubClient.getIssueEvents.mockResolvedValue([
         {
@@ -83,7 +89,6 @@ describe('IssueWatcher', () => {
     it('should skip issues without trigger label', async () => {
       const issueWithoutLabel = { ...mockIssue, labels: ['bug'] }
 
-      mockGitHubClient.getCurrentUser.mockResolvedValue('testuser')
       mockGitHubClient.getAssignedIssues.mockResolvedValue([issueWithoutLabel])
 
       const result = await watcher.checkForNewLabeledIssues()
@@ -93,7 +98,6 @@ describe('IssueWatcher', () => {
     })
 
     it('should skip already processed events', async () => {
-      mockGitHubClient.getCurrentUser.mockResolvedValue('testuser')
       mockGitHubClient.getAssignedIssues.mockResolvedValue([mockIssue])
       mockGitHubClient.getIssueEvents.mockResolvedValue([
         {
@@ -115,7 +119,6 @@ describe('IssueWatcher', () => {
     it('should handle invalid repo format', async () => {
       const invalidIssue = { ...mockIssue, repo: 'invalid-repo' }
 
-      mockGitHubClient.getCurrentUser.mockResolvedValue('testuser')
       mockGitHubClient.getAssignedIssues.mockResolvedValue([invalidIssue])
 
       const result = await watcher.checkForNewLabeledIssues()
@@ -125,7 +128,6 @@ describe('IssueWatcher', () => {
     })
 
     it('should handle events without label property', async () => {
-      mockGitHubClient.getCurrentUser.mockResolvedValue('testuser')
       mockGitHubClient.getAssignedIssues.mockResolvedValue([mockIssue])
       mockGitHubClient.getIssueEvents.mockResolvedValue([
         {
@@ -141,7 +143,6 @@ describe('IssueWatcher', () => {
     })
 
     it('should handle events with different label names', async () => {
-      mockGitHubClient.getCurrentUser.mockResolvedValue('testuser')
       mockGitHubClient.getAssignedIssues.mockResolvedValue([mockIssue])
       mockGitHubClient.getIssueEvents.mockResolvedValue([
         {
@@ -160,7 +161,6 @@ describe('IssueWatcher', () => {
     it('should handle API errors gracefully', async () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-      mockGitHubClient.getCurrentUser.mockResolvedValue('testuser')
       mockGitHubClient.getAssignedIssues.mockResolvedValue([mockIssue])
       mockGitHubClient.getIssueEvents.mockRejectedValue(new Error('API Error'))
 
@@ -176,7 +176,6 @@ describe('IssueWatcher', () => {
     })
 
     it('should stop processing after finding first unprocessed event', async () => {
-      mockGitHubClient.getCurrentUser.mockResolvedValue('testuser')
       mockGitHubClient.getAssignedIssues.mockResolvedValue([mockIssue])
       mockGitHubClient.getIssueEvents.mockResolvedValue([
         {
@@ -217,14 +216,12 @@ describe('IssueWatcher', () => {
         },
       ]
 
-      mockGitHubClient.getCurrentUser.mockResolvedValue('testuser')
       mockGitHubClient.getAssignedIssues.mockResolvedValue(mockIssues)
 
       const result = await watcher.getAllAssignedIssues()
 
       expect(result).toEqual(mockIssues)
-      expect(mockGitHubClient.getCurrentUser).toHaveBeenCalledTimes(1)
-      expect(mockGitHubClient.getAssignedIssues).toHaveBeenCalledWith('testuser')
+      expect(mockGitHubClient.getAssignedIssues).toHaveBeenCalledTimes(1)
     })
   })
 })
