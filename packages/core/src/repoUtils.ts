@@ -71,7 +71,7 @@ export async function checkGitHubAuth(): Promise<boolean> {
       stdio: 'ignore', // 全ての出力を無視
     })
     return true
-  } catch (_error: any) {
+  } catch (_error) {
     // 終了コードが0でない場合は認証されていない
     return false
   }

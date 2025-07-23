@@ -47,11 +47,19 @@ export class GitHubClient {
 
       const issuesData = JSON.parse(output)
 
-      return issuesData.map((issue: any) => ({
+      type GitHubIssue = {
+        number: number
+        title: string
+        labels: Array<{ name: string }>
+        url: string
+        updatedAt: string
+      }
+
+      return issuesData.map((issue: GitHubIssue) => ({
         number: issue.number,
         title: issue.title,
         state: 'open' as const,
-        labels: issue.labels.map((label: any) => label.name),
+        labels: issue.labels.map((label) => label.name),
         assignee: null, // GitHub CLIでは@meでフィルタしているので自分がassignee
         repo: repoInfo.fullName,
         url: issue.url,

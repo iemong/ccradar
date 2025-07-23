@@ -27,7 +27,8 @@
       "Bash(cp:*)",
       "Bash(mv:*)",
       "Bash(grep:*)",
-      "Bash(pnpm biome check:*)"
+      "Bash(pnpm biome check:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }

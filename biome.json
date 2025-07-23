@@ -1,15 +1,8 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.1.1/schema.json",
   "files": {
-    "experimentalScannerIgnores": [
-      "node_modules/**",
-      "dist/**",
-      "coverage/**",
-      "*.config.*",
-      ".git/**",
-      ".ccradar/**",
-      "pnpm-lock.yaml"
-    ]
+    "includes": ["src/**", "packages/*/src/**", "*.ts", "*.tsx", "*.js", "*.jsx"],
+    "ignoreUnknown": true
   },
   "formatter": {
     "enabled": true,
